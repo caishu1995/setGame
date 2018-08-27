@@ -2,9 +2,58 @@ var Racing = {
     baseCanvas: "racing", //canvas的id
     context: null,       //画布
     size: null,          //canvas的宽高
-    fieldDeviation: 0,   //视觉偏移
+    fieldDeviation: 0,   //视觉偏移, +视觉向左偏，山和道路尽头向左偏。-视觉向右偏
 
     speed: 0,            //车速，0~6
+
+    config: function(){
+        ///修改配置文件
+        this.config = {
+            skyHeight: this.size.height * 0.3 - 3,
+            mountain: [
+                {
+                    siteX: this.size.width * -0.2 - this.fieldDeviation,
+                    siteY: this.size.height * 0.3,
+                    width: this.size.width * 0.21,
+                    height: this.size.height * 0.2
+                },{
+                    siteX: this.size.width * -0 - this.fieldDeviation,
+                    siteY: this.size.height * 0.3,
+                    width: this.size.width * 0.22,
+                    height: this.size.height * 0.15
+                },{
+                    siteX: this.size.width * 0.15 - this.fieldDeviation,
+                    siteY: this.size.height * 0.3,
+                    width: this.size.width * 0.23,
+                    height: this.size.height * 0.22
+                },{
+                    siteX: this.size.width * 0.5 - this.fieldDeviation,
+                    siteY: this.size.height * 0.3,
+                    width: this.size.width * 0.28,
+                    height: this.size.height * 0.15
+                },{
+                    siteX: this.size.width * 0.7 - this.fieldDeviation,
+                    siteY: this.size.height * 0.3,
+                    width: this.size.width * 0.19,
+                    height: this.size.height * 0.28
+                },{
+                    siteX: this.size.width * 0.8 - this.fieldDeviation,
+                    siteY: this.size.height * 0.3,
+                    width: this.size.width * 0.25,
+                    height: this.size.height * 0.18
+                }
+            ],
+            land: {
+                colorList: ['8FC04C', '73B043'],
+                firstColorIndex: 0
+            },
+            road: {
+                sideColor: "FFF",
+                wayColor: "606A7C",
+                middleColor: 'FFF'
+            }
+        };
+    },
 
 
     init: function() {
@@ -18,25 +67,26 @@ var Racing = {
         $("#" + this.baseCanvas).attr("height", this.size.height);
         $("#" + this.baseCanvas).attr("width", this.size.width);
 
+        ///初始化配置文件
+        this.config();
+
+        ///画内容
         var that = this;
         setInterval(function(){
-            context.clearRect(0, 0, that.size.width, that.size.height);  //类似矩形擦除器，会清空区域内的像素
+            context.clearRect(0, 0, that.size.width, that.size.height);    //清空区域
 
             ///画背景
-            that.drawSky(context, that.size.width, that.size.height * 0.3 - 3);//画天空
+            that.drawSky(context, that.size.width, that.config.skyHeight);//画天空
             //画山峰们
-            that.drawMountain(context, that.size.width * -0.2 - that.fieldDeviation, that.size.height * 0.3, that.size.width * 0.21, that.size.height * 0.2);
-            that.drawMountain(context, that.size.width * -0 - that.fieldDeviation, that.size.height * 0.3, that.size.width * 0.22, that.size.height * 0.15);
-            that.drawMountain(context, that.size.width * 0.15 - that.fieldDeviation, that.size.height * 0.3, that.size.width * 0.23, that.size.height * 0.22);
-            that.drawMountain(context, that.size.width * 0.5 - that.fieldDeviation, that.size.height * 0.3, that.size.width * 0.28, that.size.height * 0.15);
-            that.drawMountain(context, that.size.width * 0.7 - that.fieldDeviation, that.size.height * 0.3, that.size.width * 0.19, that.size.height * 0.28);
-            that.drawMountain(context, that.size.width * 0.8 - that.fieldDeviation, that.size.height * 0.3, that.size.width * 0.25, that.size.height * 0.18);
-
-
+            for(var i in that.config.mountain){
+                that.drawMountain(context, that.config.mountain[i].siteX, that.config.mountain[i].siteY, that.config.mountain[i].width, that.config.mountain[i].height);
+            }
+            that.drawLand(context, that.size.width, that.size.height - that.config.skyHeight, that.config.skyHeight, that.config.land);//画地
+            that.drawRoad(context, that.size.width, that.size.height - that.config.skyHeight, that.config.skyHeight, that.fieldDeviation, that.config.road);//画街道
             that.drawIndexDial(context, that.size.width - 100, that.size.height - 100, 135 + that.speed * 45);//画车速
 
             that.context = context;
-        }, 20);
+        }, 5000);//20
     },
 
     ///画天空
@@ -48,6 +98,47 @@ var Racing = {
         context.fillRect(0, 0, width, height);
         context.fill();
     },
+    ///画地
+    /// height：高度
+    /// width ： 宽度
+    /// beginHeight ： 开始高度
+    /// landConfig ： 地配置数据
+    drawLand: function(context, width, height, beginHeight, landConfig){
+        var hasDrawHeight = 0; //已画高度
+        var i = 3;            //此次长方形的高
+        var index = landConfig.firstColorIndex; //此次长方形颜色序号
+
+        context.save();
+        while(hasDrawHeight < height){
+            //画长方形地面
+            context.fillStyle = "#" + landConfig.colorList[index];
+            context.fillRect(0, beginHeight + hasDrawHeight, width, i);
+
+            //修改参数
+            hasDrawHeight += i;
+            i = i * 1.2;
+            index = (index >= landConfig.colorList.length - 1) ? 0: (index + 1);
+        }
+        context.restore();
+    },
+    ///画道路
+    /// height：高度
+    /// width ： 宽度
+    /// beginHeight ： 开始高度
+    /// deviation   ： 偏移量
+    /// roadConfig  ： 道路配置数据
+    drawRoad: function(context, width, height, beginHeight, deviation, roadConfig){
+        context.save();
+
+        //中轴线
+        context.moveTo(width / 2 + deviation, beginHeight);
+        // context.fillStyle = "#" + roadConfig.middleColor;
+        context.quadraticCurveTo(width / 2 - deviation, height, width / 2, beginHeight);
+        context.fill();
+        context.stroke();
+
+        context.restore();
+    },
     ///画山
     /// context：画布
     /// left  ：开始点的左边距
@@ -55,6 +146,8 @@ var Racing = {
     /// height：高度
     /// width ： 宽度
     drawMountain: function(context, left, top, width, height) {
+        context.save();
+
         context.fillStyle = "#83CACE";
         context.strokeStyle = "#83CACE";
         context.lineJoin = "round";
@@ -64,8 +157,10 @@ var Racing = {
         context.lineTo(left + (width / 2), top - height);
         context.lineTo(left + width, top);
         context.closePath();
-        context.stroke();
         context.fill();
+        context.stroke();
+
+        context.restore();
     },
     ///画刻盘
     /// context：画布
