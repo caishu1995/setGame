@@ -93,10 +93,14 @@ var Racing = {
     /// height：高度
     /// width ： 宽度
     drawSky: function(context, width, height) {
+        context.save();
+
         context.fillStyle = "#D4F5FE";
         context.strokeStyle = "#D4F5FE";
         context.fillRect(0, 0, width, height);
         context.fill();
+
+        context.restore();
     },
     ///画地
     /// height：高度
@@ -131,10 +135,10 @@ var Racing = {
         context.save();
 
         //中轴线
+        context.beginPath();
         context.moveTo(width / 2 + deviation, beginHeight);
-        // context.fillStyle = "#" + roadConfig.middleColor;
-        context.quadraticCurveTo(width / 2 - deviation, height, width / 2, beginHeight);
-        context.fill();
+        context.strokeStyle = "#" + roadConfig.middleColor;
+        context.quadraticCurveTo(width / 2 - deviation, height + beginHeight, width / 2, beginHeight + height);
         context.stroke();
 
         context.restore();
