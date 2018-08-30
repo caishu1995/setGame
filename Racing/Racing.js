@@ -54,7 +54,7 @@ var Racing = {
             car: {
                 width : 160,
                 left: (width / 2) - 80,
-                top: 320,
+                top: height - 300,
                 height : 100
             }
         };
@@ -131,7 +131,10 @@ var Racing = {
 
         ///计算车跑了的路程
         this.parameter.hasRun += this.parameter.speed * 10;
-        if(this.config.road.length <= this.parameter.hasRun) clearInterval(this.parameter.time);
+        if(this.config.road.length <= this.parameter.hasRun) {
+            clearInterval(this.parameter.time);
+            alert("终点到！");
+        }
     },
 
 
