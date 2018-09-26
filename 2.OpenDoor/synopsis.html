@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>摘要</title>
+    <link rel="stylesheet" href="synopsis.css">
+</head>
+<body>
+    <div class="openDoorDiv">
+        <p>请移动钥匙打开门</p>
+        <div ondrop="dropFunction(event, this)" ondragover="event.preventDefault();">
+            <canvas class="lockDiv" width="200" height="200"></canvas>
+        </div>
+        <div draggable="true" ondragstart="event.dataTransfer.setData('Text', true);">
+            <svg class="keyDiv" >
+                <path d="M75 5 L125 5 L125 35 L155 35 L155 85 L125 85 L125 115 C170,200 30,200 75,115 L75 85 L45 85 L45 35 L75 35 Z" style="fill:green;stroke:white;stroke-width:2" />
+            </svg>
+        </div>
+    </div>
+
+    <script src="synopsis.js"></script>
+</body>
+</html>
